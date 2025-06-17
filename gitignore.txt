@@ -1,0 +1,35 @@
+# =============== Unity Generated Files ===============
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+
+# =============== OS Generated Files ===============
+.DS_Store
+Thumbs.db
+
+# =============== Visual Studio / JetBrains ===============
+.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# =============== Unity Asset Store Tools ===============
+/Assets/AssetStoreTools*
+
+# =============== Crash Reports / Analytics ===============
+*.stacktrace
+
+# =============== Unity Cache ===============
+/obj/
