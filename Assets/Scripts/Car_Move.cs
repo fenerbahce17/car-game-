@@ -1,61 +1,69 @@
-using Mono.Cecil.Cil;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class Car_Move : MonoBehaviour
 {
+    [Header("Wheel Colliders")]
+    public WheelCollider frontRight;
+    public WheelCollider frontLeft;
+    public WheelCollider backRight;
+    public WheelCollider backLeft;
 
-        public float speed = 5f;
+   
 
-        private void Start()
-        {
+    [Header("Car Settings")]
+    public float maxMotorTorque = 1500f;   // Power
+    public float maxSteerAngle = 30f;      // How much the wheels can turn
+    public float steerSmoothSpeed = 5f;    // How smoothly it turns
 
+    private float currentSteerAngle;
+    private float steerInput;
+    private float motorInput;
 
-        }
+    void Update()
+    {
+        // Read keyboard input using new Input System
+        steerInput = 0f;
+        motorInput = 0f;
 
-        private void Update()
-        {
+        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            steerInput = -1f;
+        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            steerInput = 1f;
 
+        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+            motorInput = 1f;
+        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+            motorInput = -1f;
+    }
 
-                Move();
-                Turn();
+    void FixedUpdate()
+    {
+        HandleMotor();
+        HandleSteering();
 
-        }
+    }
 
-        public void Move()
-        {
+   private void HandleMotor()
+{
+    float torque = motorInput * maxMotorTorque;
+    Debug.Log($"Motor input: {motorInput}, Torque: {torque}");
 
-                if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
-                {
-                        transform.Translate(speed * Time.deltaTime * Vector3.forward);
-                }
-                if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
-                {
-                        transform.Translate(speed * Time.deltaTime * Vector3.back);
-                }
-
-
-        }
-        Vector3 direction = Vector3.zero;
-        public void Turn()
-        {
-
-                if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
-                {
-                        direction = transform.right;
-                }
-                else if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
-                {
-                        direction = -Vector3.right;
-                }
-                else
-                {
-                        direction = Vector3.zero;
-                }
-            
-                transform.Translate(direction * speed * Time.deltaTime);
-       
-        }
-        
+    backLeft.motorTorque = torque;
+    backRight.motorTorque = torque;
+}
 
 
+    private void HandleSteering()
+    {
+        float targetAngle = steerInput * maxSteerAngle;
+        currentSteerAngle = Mathf.Lerp(currentSteerAngle, targetAngle, steerSmoothSpeed * Time.deltaTime);
+
+        frontLeft.steerAngle = currentSteerAngle;
+        frontRight.steerAngle = currentSteerAngle;
+    }
+
+   
+
+   
 }
