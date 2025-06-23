@@ -9,6 +9,13 @@ public class Car_Move : MonoBehaviour
     public WheelCollider backRight;
     public WheelCollider backLeft;
 
+    [Header("Wheel Transforms")]
+public Transform frontRightTransform;
+public Transform frontLeftTransform;
+public Transform backRightTransform;
+public Transform backLeftTransform;
+
+
    
 
     [Header("Car Settings")]
@@ -19,6 +26,10 @@ public class Car_Move : MonoBehaviour
     private float currentSteerAngle;
     private float steerInput;
     private float motorInput;
+    public AudioSource engineSound;
+    public float minPitch = 0.8f;
+    public float maxPitch = 2.0f;
+
 
     void Update()
     {
@@ -41,17 +52,85 @@ public class Car_Move : MonoBehaviour
     {
         HandleMotor();
         HandleSteering();
+        Brake();
+        UpdateWheelPoses();
+ 
+
+
+    }
+
+    public void AudioSettings()
+    {
+        //float speedFactor = Mathf.Abs(motorInput);  // Or use velocity magnitude
+        //engineSound.pitch = Mathf.Lerp(minPitch, maxPitch, speedFactor);
+        //engineSound.volume = Mathf.Clamp01(motorInput / 50f) * 1.0f;
+        
+
+    }
+    private void UpdateWheelPose(WheelCollider collider, Transform wheelTransform)
+    {
+        Vector3 pos;
+        Quaternion rot;
+        collider.GetWorldPose(out pos, out rot);
+        wheelTransform.position = pos;
+        wheelTransform.rotation = rot;
+    }
+    private void UpdateWheelPoses()
+    {
+            UpdateWheelPose(frontRight, frontRightTransform);
+            UpdateWheelPose(frontLeft, frontLeftTransform);
+            UpdateWheelPose(backRight, backRightTransform);
+            UpdateWheelPose(backLeft, backLeftTransform);
+        
+    }
+        private void Brake()
+    {
+
+        float brakeForce = 3000f; // Adjust as needed
+        float handbrakeForce = 5000f;
+
+        bool isBraking = motorInput == 0f; // Natural brake when no input
+        bool isHandbrake = Keyboard.current.spaceKey.isPressed;
+
+        float appliedBrakeForce = 0f;
+
+        if (isHandbrake)
+        {
+            // Apply stronger brake to rear wheels
+            backLeft.brakeTorque = handbrakeForce;
+            backRight.brakeTorque = handbrakeForce;
+            frontLeft.brakeTorque = 0f;
+            frontRight.brakeTorque = 0f;
+        }
+        else if (isBraking)
+        {
+            appliedBrakeForce = brakeForce;
+
+            backLeft.brakeTorque = appliedBrakeForce;
+            backRight.brakeTorque = appliedBrakeForce;
+            frontLeft.brakeTorque = appliedBrakeForce;
+            frontRight.brakeTorque = appliedBrakeForce;
+        }
+        else
+        {
+            // Release brakes when accelerating
+            backLeft.brakeTorque = 0f;
+            backRight.brakeTorque = 0f;
+            frontLeft.brakeTorque = 0f;
+            frontRight.brakeTorque = 0f;
+        }
+
 
     }
 
    private void HandleMotor()
-{
-    float torque = motorInput * maxMotorTorque;
-    Debug.Log($"Motor input: {motorInput}, Torque: {torque}");
+    {
+        float torque = motorInput * maxMotorTorque;
+        Debug.Log($"Motor input: {motorInput}, Torque: {torque}");
 
-    backLeft.motorTorque = torque;
-    backRight.motorTorque = torque;
-}
+        backLeft.motorTorque = torque;
+        backRight.motorTorque = torque;
+    }
 
 
     private void HandleSteering()
